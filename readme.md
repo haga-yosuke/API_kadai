@@ -13,5 +13,5 @@
 
 ・cssで見やすくしたとは言っているが、あまり時間をかけられておらず、納得のいく装飾にも仕上がっていない。
 
-## URL
-
+## URL 
+ https://haga-yosuke.github.io/API_kadai/
