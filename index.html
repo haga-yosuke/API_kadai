@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>もっと見やすいWikiの森</title>
+</head>
+
+<body>
+
+    <!-- タイトル -->
+    <div class="header">
+        <h1 class="header-title">Comfort Wiki Forest</h1>
+        <h2>もっと見やすいWikiの森</h2>
+    </div>
+
+    <div class="wikipedia">
+        <div class="wikipedia__inner">
+            <h3 class="wikipedia__heading">キーワードを検索</h3>
+
+            <div class="wikipedia__search">
+                <input id="js-wikipedia-input" type="text" value="" placeholder="検索ワード">
+                <button id="js-wikipedia-button" type="button">検索</button>
+            </div>
+            <div class="wikipedia__body" id="js-wikipedia-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // ウィキペディアAPI
+
+        (() => {
+
+                const wikiInput = document.getElementById("js-wikipedia-input"); 
+                const wikiButton = document.getElementById("js-wikipedia-button"); 
+                const wikiBody = document.getElementById("js-wikipedia-body"); 
+
+                const wikiFetch = async (inputValue) => { 
+                    const fetchValue = fetch(`https://ja.wikipedia.org/w/api.php?format=json&action=query&origin=*&list=search&srlimit=45&srsearch=${inputValue}`, {
+                        method: "GET"
+                    })
+                        .then((value) => {
+                            return value.json(); 
+                        })
+                        .catch(() => {
+                            alert("wikipediaにうまくアクセスできていない");
+                        });
+
+                    const valueJson = await fetchValue; 
+                    const valueTargets = valueJson.query.search; 
+
+                    if (!valueTargets.length) {
+                        const wikiNull = document.createElement("p");
+                        wikiNull.classList.add("wikipedia__null");
+                        wikiNull.textContent = "検索したワードはヒットしませんでした。";
+                        wikiBody.appendChild(wikiNull);
+                    } else {
+                        const elemWrap = document.createElement("div");
+                        elemWrap.classList.add("wikipedia__main");
+
+                        for (const elem of valueTargets) {
+                            const elemBlock = document.createElement("a");
+                            elemBlock.classList.add("wikipedia__block");
+                            elemBlock.setAttribute("target", "_blank");
+                            elemBlock.setAttribute("rel", "noopener noreferrer");
+                            const elemId = elem.pageid;
+                            elemBlock.setAttribute("href", `http://jp.wikipedia.org/?curid=${elemId}`);
+
+                            //タイトルを設定
+                            const elemSpan = document.createElement("span");
+                            elemSpan.classList.add("wikipedia__block-ttl");
+                            const elemTitle = elem.title;
+                            elemSpan.textContent = elemTitle;
+
+                            //更新日を設定
+                            const elemSpan2 = document.createElement("span");
+                            elemSpan2.classList.add("wikipedia__block-date");
+                            const elemDate = elem.timestamp;
+                            const elemDateSlice = elemDate.slice(0, 10).replace(/-/g, ".");
+                            elemSpan2.textContent = "最終更新日：" + elemDateSlice;
+
+                            // 組み合わせ
+                            elemWrap.appendChild(elemBlock);
+                            elemBlock.appendChild(elemSpan);
+                            elemBlock.appendChild(elemSpan2);
+                            wikiBody.appendChild(elemWrap);
+                        }
+                    }
+                };
+
+                //クリックイベントに設定している関数
+                const wikiData = () => {
+                    wikiBody.innerHTML = ""; 
+                    const inputValue = wikiInput.value; 
+                    wikiFetch(inputValue);
+                };
+
+                wikiButton.addEventListener("click", wikiData, false);
+            })();
+
+    </script>
+
+    <footer>
+        <div class="footer">
+            <small>copyrights 2021-2022 G`s Academy Fukuoka All RIghts Reserved.</small>
+        </div>
+    </footer>
+</body>
+</html>
